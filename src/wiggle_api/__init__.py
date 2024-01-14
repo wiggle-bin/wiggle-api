@@ -1,11 +1,10 @@
-import datetime
+from datetime import datetime, timedelta
 import glob
 import os
 import io
 from pathlib import Path
 import zipfile
-from flask import Flask, Response, jsonify
-from werkzeug.wsgi import FileWrapper
+from flask import Flask, Response, jsonify, Response
 
 BASE_FOLDER = Path.home() / 'WiggleR'
 IMG_FOLDER = f"{BASE_FOLDER}/Pictures"
@@ -26,18 +25,18 @@ def list_files(folder, path, extension):
 def zipfiles(filenames, name):
     zip_subdir = "./"
     zip_io = io.BytesIO()
+
     with zipfile.ZipFile(zip_io, mode='w', compression=zipfile.ZIP_DEFLATED) as temp_zip:
         for fpath in filenames:
             _, fname = os.path.split(fpath)
             zip_path = os.path.join(zip_subdir, fname)
             temp_zip.write(fpath, zip_path)
 
-    return Response(
-        FileWrapper(zip_io),
-        mimetype="application/x-zip-compressed",
-        direct_passthrough=True,
-        headers={"Content-Disposition": f"attachment; filename={name}.zip"}
-    )
+    zip_io.seek(0)
+
+    response = Response(zip_io, mimetype="application/x-zip-compressed")
+    response.headers["Content-Disposition"] = f"attachment; filename={name}.zip"
+    return response
 
 def create_app():
     # create and configure the app
@@ -47,7 +46,7 @@ def create_app():
     @app.route('/')
     def hello():
         return jsonify({"worm": 'Hello!'})
-    
+
     # a simple page that says hello
     @app.route('/images')
     def images():
@@ -84,11 +83,12 @@ def create_app():
     def zip_stream(date):
         filenames = glob.glob(
             str(Path(__file__).parent / f"{IMG_FOLDER}/{date}*.jpg"))
+        print(filenames)
         return zipfiles(filenames, date)
 
     @app.route("/images/zip/yesterday", methods=['GET'])
     def zip_yesterday():
-        yesterday = (datetime.now() - datetime.timedelta(1)).strftime('%Y-%m-%d')
+        yesterday = (datetime.now() - timedelta(1)).strftime('%Y-%m-%d')
         os.system(
             f'zip -j {ZIP_FOLDER}/{yesterday} {IMG_FOLDER}/{yesterday}*.jpg')
         return {
@@ -123,7 +123,7 @@ def create_app():
 
     @app.route("/timelapse/yesterday", methods=['GET'])
     def timelapse_yesterday():
-        yesterday = (datetime.now() - datetime.timedelta(1)).strftime('%Y-%m-%d')
+        yesterday = (datetime.now() - timedelta(1)).strftime('%Y-%m-%d')
         os.system(
             f'ffmpeg -framerate 30 -pattern_type glob -i "{IMG_FOLDER}/{yesterday}*.jpg" -s:v 1440x1080 -c:v libx264 -crf 17 -pix_fmt yuv420p {VID_FOLDER}/{yesterday}.mp4')
         return jsonify({
