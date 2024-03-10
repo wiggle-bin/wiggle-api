@@ -5,11 +5,14 @@ import io
 from pathlib import Path
 import zipfile
 from flask import Flask, Response, jsonify, Response
+import csv
 
-BASE_FOLDER = Path.home() / 'WiggleR'
+BASE_FOLDER = Path.home() / 'WiggleBin'
 IMG_FOLDER = f"{BASE_FOLDER}/Pictures"
 VID_FOLDER = f"{BASE_FOLDER}/Videos"
 ZIP_FOLDER = f"{BASE_FOLDER}/Zip"
+DATA_FOLDER = BASE_FOLDER / "sensor-data"
+BME_FILE = DATA_FOLDER / "bme680.csv"
 
 def list_files(folder, path, extension):
     out = []
@@ -46,7 +49,20 @@ def create_app():
     @app.route('/')
     def hello():
         return jsonify({"worm": 'Hello!'})
-
+    
+    # BME sensor environment data
+    @app.route('/sensors/environment')
+    def environment():
+        data = []
+        try:
+            with open(BME_FILE, 'r') as file:
+                reader = csv.DictReader(file)
+                for row in reader:
+                    data.append(row)
+        except FileNotFoundError:
+            return jsonify({"error": "File not found"})
+        return jsonify(data)
+    
     # a simple page that says hello
     @app.route('/images')
     def images():
@@ -139,5 +155,6 @@ def create_app():
             "name": date,
             "path": f'/video/{date}.mp4'
         })
+        
 
     return app

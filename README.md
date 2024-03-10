@@ -2,19 +2,44 @@
 
 Control the [WiggleR](https://github.com/wiggle-bin/wiggle-r) via the API. Wiggle-api allows you do things like retrieve sensor data from the WiggleR.
 
-## Running
+## Installing for development
 
-Without Docker:
-```
-flask --app src/wiggle_api run --debug
-```
+### Running with Docker compose
 
-With docker-compose:
+Install Docker on your Raspberry Pi and run
+
 ```
 docker-compose up
 ```
 
-As a Pip package
+### Running with venv
+
+Create an environment
+
+```bash
+python3 -m venv .venv
+```
+
+Start environment
+
+```bash
+source .venv/bin/activate
+```
+
+Install packages
+
+```bash
+pip install -r requirements.txt
+```
+
+Start the Flask server
+
+```bash
+flask --app src/wiggle_api run --debug
+```
+
+### Install as a local Pip package
+
 ```
 pip3 install -e .
 wiggle_api
