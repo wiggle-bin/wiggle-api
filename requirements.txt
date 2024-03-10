@@ -1,2 +1,6 @@
 flask
 python-dotenv
+
+# Development dependencies
+-e .  # This assumes your project is in the current directory
+black
