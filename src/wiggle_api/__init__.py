@@ -13,6 +13,7 @@ VID_FOLDER = f"{BASE_FOLDER}/Videos"
 ZIP_FOLDER = f"{BASE_FOLDER}/Zip"
 DATA_FOLDER = BASE_FOLDER / "sensor-data"
 BME_FILE = DATA_FOLDER / "bme680.csv"
+WIGGLE_GATE_FILE = DATA_FOLDER / "wiggle-gate.csv"
 
 
 def list_files(folder, path, extension):
@@ -58,6 +59,19 @@ def create_app():
         data = []
         try:
             with open(BME_FILE, "r") as file:
+                reader = csv.DictReader(file)
+                for row in reader:
+                    data.append(row)
+        except FileNotFoundError:
+            return jsonify({"error": "File not found"})
+        return jsonify(data)
+
+    # WiggleGate sensor
+    @app.route("/sensors/gate")
+    def gate():
+        data = []
+        try:
+            with open(WIGGLE_GATE_FILE, "r") as file:
                 reader = csv.DictReader(file)
                 for row in reader:
                     data.append(row)
