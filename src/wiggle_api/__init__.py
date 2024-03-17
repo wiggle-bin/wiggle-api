@@ -43,6 +43,16 @@ def zipfiles(filenames, name):
     response.headers["Content-Disposition"] = f"attachment; filename={name}.zip"
     return response
 
+def read_last_row(file_path):
+    try:
+        with open(file_path, 'r') as file:
+            reader = csv.DictReader(file)
+            last_row = None
+            for row in reader:
+                last_row = row
+        return last_row
+    except FileNotFoundError:
+        return {"error": "File not found"}
 
 def create_app():
     # create and configure the app
@@ -53,8 +63,17 @@ def create_app():
     def hello():
         return jsonify({"worm": "Hello!"})
 
+    # Latest data from sensors
+    @app.route("/sensors/")
+    def sensors():
+        data = {
+            'bme': read_last_row(BME_FILE),
+            'wiggle_gate': read_last_row(WIGGLE_GATE_FILE)
+        }
+        return jsonify(data)
+
     # BME sensor environment data
-    @app.route("/sensors/environment")
+    @app.route("/sensors/bme")
     def environment():
         data = []
         try:
@@ -67,7 +86,7 @@ def create_app():
         return jsonify(data)
 
     # WiggleGate sensor
-    @app.route("/sensors/gate")
+    @app.route("/sensors/wiggle-gate")
     def gate():
         data = []
         try:
