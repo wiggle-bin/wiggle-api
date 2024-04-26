@@ -1,9 +1,9 @@
-from . import create_app
+from wiggle_api import create_app
 
 app = create_app()
 
 
-def run():
+def main():
     app.run(host="0.0.0.0")
 
 

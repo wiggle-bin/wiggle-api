@@ -1,13 +1,14 @@
 [project]
 name = "wiggle_api"
 version = "1.0.0"
-description = "Basic API for WiggleR."
+description = "Basic API for WiggleBin."
 dependencies = [
     "flask",
 ]
 
 [project.scripts]
-wiggle_api = "wiggle_api.run:run"
+wiggle-api = "wiggle_api.main:main"
+wiggle-api-install = "wiggle_api.install:install"
 
 [build-system]
 requires = ["flit_core<4"]
