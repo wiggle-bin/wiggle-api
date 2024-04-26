@@ -44,3 +44,36 @@ Start the Flask server
 ```bash
 flask -app src/wiggle_api run --debug
 ```
+
+## Install WiggleApi service
+
+In the terminal run `wiggle-api-install`. This will install and start a service which runs `wiggle-api` on boot.
+
+```
+wiggle-api-install
+```
+
+
+You can check the status with:
+
+```
+systemctl --user status wiggle-api.service
+```
+
+To stop the service run:
+
+```
+systemctl --user stop wiggle-api.service
+```
+
+To start the service run:
+
+```
+systemctl --user start wiggle-api.service
+```
+
+Watching output of the service:
+
+```
+journalctl --user-unit=wiggle-api.service -f
+```
