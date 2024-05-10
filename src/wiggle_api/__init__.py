@@ -26,8 +26,9 @@ def list_files(folder, path, extension):
 
 
 def get_latest_file(dir):
-    files = Path(dir).glob('*')
-    return max(files, key=os.path.getctime)
+    files = os.listdir(dir)
+    files.sort()
+    return os.path.join(dir, files[-1])
 
 
 def zipfiles(filenames, name):
@@ -68,7 +69,7 @@ def create_app():
     @app.route('/latest-image')
     def latest_image():
         latest_img = get_latest_file(IMG_FOLDER)
-        return send_from_directory(IMG_FOLDER, latest_img.name)
+        return send_from_directory(IMG_FOLDER, os.path.basename(latest_img))
 
     # a simple page that says hello
     @app.route("/")
