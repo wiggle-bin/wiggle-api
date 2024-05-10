@@ -4,7 +4,7 @@ import os
 import io
 from pathlib import Path
 import zipfile
-from flask import Flask, Response, jsonify, Response
+from flask import Flask, Response, jsonify, Response, send_from_directory
 import csv
 
 BASE_FOLDER = Path.home() / "WiggleBin"
@@ -23,6 +23,11 @@ def list_files(folder, path, extension):
         if ext == extension:
             out.append({"name": name, "path": path + fileName})
     return out
+
+
+def get_latest_file(dir):
+    files = Path(dir).glob('*')
+    return max(files, key=os.path.getctime)
 
 
 def zipfiles(filenames, name):
@@ -59,6 +64,11 @@ def read_last_row(file_path):
 def create_app():
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
+
+    @app.route('/latest-image')
+    def latest_image():
+        latest_img = get_latest_file(IMG_FOLDER)
+        return send_from_directory(IMG_FOLDER, latest_img.name)
 
     # a simple page that says hello
     @app.route("/")
