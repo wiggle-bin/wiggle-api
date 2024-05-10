@@ -8,7 +8,7 @@ from flask import Flask, Response, jsonify, Response, send_from_directory
 import csv
 
 BASE_FOLDER = Path.home() / "WiggleBin"
-IMG_FOLDER = f"{BASE_FOLDER}/Pictures"
+IMG_FOLDER = f"{BASE_FOLDER}/pictures"
 VID_FOLDER = f"{BASE_FOLDER}/Videos"
 ZIP_FOLDER = f"{BASE_FOLDER}/Zip"
 DATA_FOLDER = BASE_FOLDER / "sensor-data"
