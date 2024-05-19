@@ -13,6 +13,7 @@ VID_FOLDER = f"{BASE_FOLDER}/Videos"
 ZIP_FOLDER = f"{BASE_FOLDER}/Zip"
 DATA_FOLDER = BASE_FOLDER / "sensor-data"
 BME_FILE = DATA_FOLDER / "bme680.csv"
+SOIL_TEMPERATURE_FILE = DATA_FOLDER / "soil-temperature.csv"
 WIGGLE_GATE_FILE = DATA_FOLDER / "wiggle-gate.csv"
 
 
@@ -23,7 +24,6 @@ def list_files(folder, path, extension):
         if ext == extension:
             out.append({"name": name, "path": path + fileName})
     return out
-
 
 def get_latest_file(dir):
     files = os.listdir(dir)
@@ -71,6 +71,10 @@ def create_app():
         latest_img = get_latest_file(IMG_FOLDER)
         return send_from_directory(IMG_FOLDER, os.path.basename(latest_img))
 
+    @app.route('/download-zip/<filename>')
+    def download_zip(filename):
+        return send_from_directory(ZIP_FOLDER, filename, as_attachment=True)
+
     # a simple page that says hello
     @app.route("/")
     def hello():
@@ -91,6 +95,19 @@ def create_app():
         data = []
         try:
             with open(BME_FILE, "r") as file:
+                reader = csv.DictReader(file)
+                for row in reader:
+                    data.append(row)
+        except FileNotFoundError:
+            return jsonify({"error": "File not found"})
+        return jsonify(data)
+
+    # Soil temperature sensor environment data
+    @app.route("/sensors/soil-temperature")
+    def soil_temperature():
+        data = []
+        try:
+            with open(SOIL_TEMPERATURE_FILE, "r") as file:
                 reader = csv.DictReader(file)
                 for row in reader:
                     data.append(row)
