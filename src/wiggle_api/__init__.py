@@ -9,20 +9,22 @@ import csv
 
 BASE_FOLDER = Path.home() / "WiggleBin"
 IMG_FOLDER = f"{BASE_FOLDER}/pictures"
-VID_FOLDER = f"{BASE_FOLDER}/Videos"
-ZIP_FOLDER = f"{BASE_FOLDER}/Zip"
+VID_FOLDER = f"{BASE_FOLDER}/videos"
+ZIP_FOLDER = f"{BASE_FOLDER}/zips"
+ZIP_FOLDER_HOURLY = f"{ZIP_FOLDER}/hourly"
+ZIP_FOLDER_DAILY = f"{ZIP_FOLDER}/daily"
+ZIP_FOLDER_WEEKLY = f"{ZIP_FOLDER}/weekly"
 DATA_FOLDER = BASE_FOLDER / "sensor-data"
 BME_FILE = DATA_FOLDER / "bme680.csv"
 SOIL_TEMPERATURE_FILE = DATA_FOLDER / "soil-temperature.csv"
 WIGGLE_GATE_FILE = DATA_FOLDER / "wiggle-gate.csv"
-
 
 def list_files(folder, path, extension):
     out = []
     for fileName in sorted(os.listdir(folder)):
         name, ext = os.path.splitext(fileName)
         if ext == extension:
-            out.append({"name": name, "path": path + fileName})
+            out.append({"name": name, "path": 'http://wigglebin.local:5000' + path + fileName})
     return out
 
 def get_latest_file(dir):
@@ -70,7 +72,7 @@ def create_app():
     def latest_image():
         latest_img = get_latest_file(IMG_FOLDER)
         return send_from_directory(IMG_FOLDER, os.path.basename(latest_img))
-
+    
     @app.route('/download-zip/<filename>')
     def download_zip(filename):
         return send_from_directory(ZIP_FOLDER, filename, as_attachment=True)
@@ -142,23 +144,33 @@ def create_app():
 
     @app.route("/videos", methods=["GET"])
     def videos():
-        return list_files(VID_FOLDER, "/video/", ".mp4")
-
+        return list_files(VID_FOLDER, "/video/", ".mov")
+    
+    @app.route("/videos/<string:date>", methods=["GET"])
+    def get_videos(date):
+        return send_from_directory(VID_FOLDER, f"{date}.mp4")
+    
     @app.route("/videos/<string:date>", methods=["DELETE"])
     def delete_videos(date):
         filePath = f"{VID_FOLDER}/{date}*.jpg"
         os.system(f"rm {filePath}")
         return jsonify({"message": f"successfully deleted {filePath}"})
 
-    @app.route("/zips", methods=["GET"])
-    def zips():
-        return list_files(ZIP_FOLDER, "/zip/", ".zip")
+    @app.route("/zips/hourly", methods=["GET"])
+    def hourly_zips():
+        return jsonify(list_files(ZIP_FOLDER_HOURLY, "/zips/hourly/", ".zip"))
 
-    @app.route("/zips/<string:date>", methods=["DELETE"])
-    def delete_zip(date):
-        filePath = f"{ZIP_FOLDER}/{date}*.jpg"
-        os.system(f"rm {filePath}")
-        return jsonify({"message": f"successfully deleted {filePath}"})
+    @app.route("/zips/daily", methods=["GET"])
+    def daily_zips():
+        return jsonify(list_files(ZIP_FOLDER_DAILY, "/zips/daily/", ".zip"))
+
+    @app.route("/zips/weekly", methods=["GET"])
+    def weekly_zips():
+        return jsonify(list_files(ZIP_FOLDER_WEEKLY, "/zips/weekly/", ".zip"))
+
+    @app.route("/zips/<string:subFolder>/<string:file>", methods=["GET"])
+    def get_zip(subFolder, file):
+        return send_from_directory(f"{ZIP_FOLDER}/{subFolder}", file)
 
     @app.route("/images/zip/stream/<string:date>", methods=["GET"])
     def zip_stream(date):

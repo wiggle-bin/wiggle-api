@@ -1,5 +1,5 @@
 [project]
-name = "wiggle_api"
+name = "wiggle-api"
 version = "1.0.0"
 description = "Basic API for WiggleBin."
 dependencies = [
