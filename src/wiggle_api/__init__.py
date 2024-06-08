@@ -6,7 +6,6 @@ from pathlib import Path
 import zipfile
 from flask import Flask, Response, jsonify, Response, send_from_directory
 import csv
-from wiggle_sensors import read_DS18B20, read_bme680
 
 BASE_FOLDER = Path.home() / "WiggleBin"
 IMG_FOLDER = f"{BASE_FOLDER}/pictures"
@@ -87,8 +86,8 @@ def create_app():
     @app.route("/sensors/")
     def sensors():
         data = {
-            "bme": read_bme680(),
-            "soil_temperature": read_DS18B20()
+            "environment": read_last_row(BME_FILE),
+            "soil": read_last_row(SOIL_TEMPERATURE_FILE),
         }
         return jsonify(data)
 
