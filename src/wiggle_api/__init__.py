@@ -17,6 +17,7 @@ ZIP_FOLDER_WEEKLY = f"{ZIP_FOLDER}/weekly"
 DATA_FOLDER = BASE_FOLDER / "sensor-data"
 BME_FILE = DATA_FOLDER / "bme680.csv"
 SOIL_TEMPERATURE_FILE = DATA_FOLDER / "soil-temperature.csv"
+IMAGE_DATA = DATA_FOLDER / "image-data.csv"
 WIGGLE_GATE_FILE = DATA_FOLDER / "wiggle-gate.csv"
 
 def list_files(folder, path, extension):
@@ -76,6 +77,14 @@ def create_app():
     @app.route('/download-zip/<filename>')
     def download_zip(filename):
         return send_from_directory(ZIP_FOLDER, filename, as_attachment=True)
+    
+    @app.route('/data/', methods=['GET'])
+    def list_data():
+        return jsonify(list_files(DATA_FOLDER, "/data/", ".csv"))
+
+    @app.route('/data/<filename>', methods=['GET'])
+    def download_file(filename):
+        return send_from_directory(DATA_FOLDER, filename, as_attachment=True)
 
     # a simple page that says hello
     @app.route("/")
@@ -88,6 +97,7 @@ def create_app():
         data = {
             "environment": read_last_row(BME_FILE),
             "soil": read_last_row(SOIL_TEMPERATURE_FILE),
+            "image": read_last_row(IMAGE_DATA),
         }
         return jsonify(data)
 
