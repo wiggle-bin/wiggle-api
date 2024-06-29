@@ -69,10 +69,9 @@ def create_app():
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
 
-    @app.route('/latest-image')
-    def latest_image():
-        latest_img = get_latest_file(IMG_FOLDER)
-        return send_from_directory(IMG_FOLDER, os.path.basename(latest_img))
+    @app.route('/image/<filename>')
+    def image(filename):
+        return send_from_directory(IMG_FOLDER, filename)
     
     @app.route('/download-zip/<filename>')
     def download_zip(filename):
