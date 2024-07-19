@@ -68,10 +68,6 @@ def read_last_row(file_path):
 def create_app():
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
-
-    @app.route('/image/<filename>')
-    def image(filename):
-        return send_from_directory(IMG_FOLDER, filename)
     
     @app.route('/download-zip/<filename>')
     def download_zip(filename):
@@ -145,25 +141,17 @@ def create_app():
         files = list_files(IMG_FOLDER, "/image/", ".jpg")
         return jsonify(files)
 
-    @app.route("/images/<string:date>", methods=["DELETE"])
-    def delete_images(date):
-        filePath = f"{IMG_FOLDER}/{date}*.jpg"
-        os.system(f"rm {filePath}")
-        return {"message": f"successfully deleted {filePath}"}
+    @app.route("/image/<filename>")
+    def image(filename):
+        return send_from_directory(IMG_FOLDER, filename)
 
     @app.route("/videos", methods=["GET"])
     def videos():
-        return list_files(VID_FOLDER, "/video/", ".mov")
-    
-    @app.route("/videos/<string:date>", methods=["GET"])
-    def get_videos(date):
-        return send_from_directory(VID_FOLDER, f"{date}.mp4")
-    
-    @app.route("/videos/<string:date>", methods=["DELETE"])
-    def delete_videos(date):
-        filePath = f"{VID_FOLDER}/{date}*.jpg"
-        os.system(f"rm {filePath}")
-        return jsonify({"message": f"successfully deleted {filePath}"})
+        return list_files(VID_FOLDER, "/video/", ".mp4")
+
+    @app.route("/video/<filename>")
+    def get_videos(filename):
+        return send_from_directory(VID_FOLDER, filename)
 
     @app.route("/zips/hourly", methods=["GET"])
     def hourly_zips():
