@@ -17,6 +17,7 @@ ZIP_FOLDER_WEEKLY = f"{ZIP_FOLDER}/weekly"
 DATA_FOLDER = BASE_FOLDER / "sensor-data"
 BME_FILE = DATA_FOLDER / "bme680.csv"
 SOIL_TEMPERATURE_FILE = DATA_FOLDER / "soil-temperature.csv"
+SOIL_MOISTURE_FILE = DATA_FOLDER / "soil-moisture.csv"
 IMAGE_DATA = DATA_FOLDER / "image-data.csv"
 WIGGLE_GATE_FILE = DATA_FOLDER / "wiggle-gate.csv"
 
@@ -92,6 +93,7 @@ def create_app():
         data = {
             "environment": read_last_row(BME_FILE),
             "soil": read_last_row(SOIL_TEMPERATURE_FILE),
+            "soil_moisture": read_last_row(SOIL_MOISTURE_FILE),
             "image": read_last_row(IMAGE_DATA),
         }
         return jsonify(data)
