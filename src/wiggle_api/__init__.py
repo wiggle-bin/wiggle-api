@@ -10,6 +10,9 @@ import csv
 BASE_FOLDER = Path.home() / "WiggleBin"
 IMG_FOLDER = f"{BASE_FOLDER}/pictures"
 VID_FOLDER = f"{BASE_FOLDER}/videos"
+VID_FOLDER_HOURLY = f"{VID_FOLDER}/hourly"
+VID_FOLDER_DAILY = f"{VID_FOLDER}/daily"
+VID_FOLDER_WEEKLY = f"{VID_FOLDER}/weekly"
 ZIP_FOLDER = f"{BASE_FOLDER}/zips"
 ZIP_FOLDER_HOURLY = f"{ZIP_FOLDER}/hourly"
 ZIP_FOLDER_DAILY = f"{ZIP_FOLDER}/daily"
@@ -147,13 +150,21 @@ def create_app():
     def image(filename):
         return send_from_directory(IMG_FOLDER, filename)
 
-    @app.route("/videos", methods=["GET"])
-    def videos():
-        return list_files(VID_FOLDER, "/video/", ".mp4")
+    @app.route("/videos/daily", methods=["GET"])
+    def daily_videos():
+        return jsonify(list_files(VID_FOLDER_DAILY, "/videos/daily/", ".mp4"))
 
-    @app.route("/video/<filename>")
-    def get_videos(filename):
-        return send_from_directory(VID_FOLDER, filename)
+    @app.route("/videos/hourly", methods=["GET"])
+    def hourly_videos():
+        return jsonify(list_files(VID_FOLDER_HOURLY, "/videos/hourly/", ".mp4"))
+
+    @app.route("/videos/weekly", methods=["GET"])
+    def weekly_videos():
+        return jsonify(list_files(VID_FOLDER_WEEKLY, "/videos/weekly/", ".mp4"))
+    
+    @app.route("/videos/<string:subFolder>/<string:file>", methods=["GET"])
+    def get_video(subFolder, file):
+        return send_from_directory(f"{VID_FOLDER}/{subFolder}", file)
 
     @app.route("/zips/hourly", methods=["GET"])
     def hourly_zips():
