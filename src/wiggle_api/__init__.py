@@ -4,7 +4,7 @@ import os
 import io
 from pathlib import Path
 import zipfile
-from flask import Flask, Response, jsonify, Response, send_from_directory
+from flask import Flask, Response, jsonify, Response, send_from_directory, request
 import csv
 
 BASE_FOLDER = Path.home() / "WiggleBin"
@@ -29,7 +29,7 @@ def list_files(folder, path, extension):
     for fileName in sorted(os.listdir(folder)):
         name, ext = os.path.splitext(fileName)
         if ext == extension:
-            out.append({"name": name, "path": 'http://wigglebin.local:5000' + path + fileName})
+            out.append({"name": name, "path": f'http://{request.host}' + path + fileName})
     return out
 
 def get_latest_file(dir):

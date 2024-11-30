@@ -1,6 +1,6 @@
 [project]
 name = "wiggle-api"
-version = "1.0.0"
+version = "1.1.1"
 description = "Basic API for WiggleBin."
 dependencies = [
     "flask",
