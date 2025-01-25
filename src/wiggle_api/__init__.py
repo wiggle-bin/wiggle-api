@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 import glob
+import json
 import os
 import io
 from pathlib import Path
@@ -19,10 +20,10 @@ ZIP_FOLDER_DAILY = f"{ZIP_FOLDER}/daily"
 ZIP_FOLDER_WEEKLY = f"{ZIP_FOLDER}/weekly"
 DATA_FOLDER = BASE_FOLDER / "sensor-data"
 BME_FILE = DATA_FOLDER / "bme680.csv"
-SOIL_TEMPERATURE_FILE = DATA_FOLDER / "soil-temperature.csv"
-SOIL_MOISTURE_FILE = DATA_FOLDER / "soil-moisture.csv"
+TEMPERATURE_FILE = DATA_FOLDER / "temperature.csv"
 IMAGE_DATA = DATA_FOLDER / "image-data.csv"
 WIGGLE_GATE_FILE = DATA_FOLDER / "wiggle-gate.csv"
+SOIL_TEMPERATURE_FILE = DATA_FOLDER / "temperature.json"
 
 def list_files(folder, path, extension):
     out = []
@@ -57,6 +58,14 @@ def zipfiles(filenames, name):
     return response
 
 
+def read_last_json_item(file_path):
+    try:
+        with open(file_path, 'r') as file:
+            items = json.load(file)
+            return items[-1]
+    except FileNotFoundError:
+        return {"error": "File not found"}
+
 def read_last_row(file_path):
     try:
         with open(file_path, "r") as file:
@@ -67,7 +76,6 @@ def read_last_row(file_path):
         return last_row
     except FileNotFoundError:
         return {"error": "File not found"}
-
 
 def create_app():
     # create and configure the app
@@ -95,8 +103,7 @@ def create_app():
     def sensors():
         data = {
             "environment": read_last_row(BME_FILE),
-            "soil": read_last_row(SOIL_TEMPERATURE_FILE),
-            "soil_moisture": read_last_row(SOIL_MOISTURE_FILE),
+            "temperature": read_last_json_item(SOIL_TEMPERATURE_FILE),
             "image": read_last_row(IMAGE_DATA),
         }
         return jsonify(data)
@@ -117,15 +124,12 @@ def create_app():
     # Soil temperature sensor environment data
     @app.route("/sensors/soil-temperature")
     def soil_temperature():
-        data = []
         try:
-            with open(SOIL_TEMPERATURE_FILE, "r") as file:
-                reader = csv.DictReader(file)
-                for row in reader:
-                    data.append(row)
+            with open(SOIL_TEMPERATURE_FILE, 'r') as file:
+                data = json.load(file)
+                return jsonify(data)
         except FileNotFoundError:
-            return jsonify({"error": "File not found"})
-        return jsonify(data)
+            return {"error": "File not found"}
 
     # WiggleGate sensor
     @app.route("/sensors/wiggle-gate")
